@@ -3,17 +3,17 @@ package org.ccl.cclautoclick.sender;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import org.ccl.cclautoclick.engine.InputMark;
-import org.ccl.cclautoclick.jna.WinUser;
+import org.ccl.cclautoclick.jna.User32;
 import org.ccl.cclautoclick.model.Key;
 
 public class InputSender {
 
     public static void sendMouse(int flags) {
-        WinUser.INPUT input = new WinUser.INPUT();
-        input.type = WinUser.INPUT_MOUSE;
+        User32.INPUT input = new User32.INPUT();
+        input.type = User32.INPUT.INPUT_MOUSE;
 
-        input.inputUnion.setType(WinUser.MOUSEINPUT.class);
-        input.inputUnion.mi = new WinUser.MOUSEINPUT();
+        input.inputUnion.setType(User32.MOUSEINPUT.class);
+        input.inputUnion.mi = new User32.MOUSEINPUT();
         input.inputUnion.mi.dwFlags = flags;
         input.inputUnion.mi.time = 0;
         // 【关键】设置自定义标记，防止回环
@@ -22,18 +22,18 @@ public class InputSender {
         input.inputUnion.write();
         input.write();
 
-        send(new WinUser.INPUT[]{input});
+        send(new User32.INPUT[]{input});
     }
 
     public static void sendKey(short vk, boolean keyUp) {
-        WinUser.INPUT input = new WinUser.INPUT();
-        input.type = WinUser.INPUT_KEYBOARD;
+        User32.INPUT input = new User32.INPUT();
+        input.type = User32.INPUT.INPUT_KEYBOARD;
 
-        input.inputUnion.setType(WinUser.KEYBDINPUT.class);
-        input.inputUnion.ki = new WinUser.KEYBDINPUT();
+        input.inputUnion.setType(User32.KEYBDINPUT.class);
+        input.inputUnion.ki = new User32.KEYBDINPUT();
         input.inputUnion.ki.wVk = vk;
         input.inputUnion.ki.wScan = 0;
-        input.inputUnion.ki.dwFlags = keyUp ? WinUser.KEYEVENTF_KEYUP : 0;
+        input.inputUnion.ki.dwFlags = keyUp ? User32.KEYEVENTF_KEYUP : 0;
         input.inputUnion.ki.time = 0;
         // 【关键】设置自定义标记，防止回环
         input.inputUnion.ki.dwExtraInfo = Pointer.createConstant(InputMark.MAGIC);
@@ -41,7 +41,7 @@ public class InputSender {
         input.inputUnion.write();
         input.write();
 
-        send(new WinUser.INPUT[]{input});
+        send(new User32.INPUT[]{input});
     }
 
     public static void sendKeyClick(short vk) {
@@ -50,18 +50,18 @@ public class InputSender {
     }
 
     public static void sendWheel(int delta) {
-        WinUser.INPUT input = new WinUser.INPUT();
-        input.type = WinUser.INPUT_MOUSE;
+        User32.INPUT input = new User32.INPUT();
+        input.type = User32.INPUT.INPUT_MOUSE;
 
-        input.inputUnion.setType(WinUser.MOUSEINPUT.class);
-        input.inputUnion.mi = new WinUser.MOUSEINPUT();
+        input.inputUnion.setType(User32.MOUSEINPUT.class);
+        input.inputUnion.mi = new User32.MOUSEINPUT();
         input.inputUnion.mi.mouseData = delta;
-        input.inputUnion.mi.dwFlags = WinUser.MOUSEEVENTF_WHEEL;
+        input.inputUnion.mi.dwFlags = User32.MOUSEEVENTF_WHEEL;
 
         input.inputUnion.write();
         input.write();
 
-        send(new WinUser.INPUT[]{input});
+        send(new User32.INPUT[]{input});
     }
 
     /**
@@ -82,16 +82,16 @@ public class InputSender {
         int downFlag, upFlag;
         switch (key) {
             case MOUSE_LEFT:
-                downFlag = WinUser.MOUSEEVENTF_LEFTDOWN;
-                upFlag = WinUser.MOUSEEVENTF_LEFTUP;
+                downFlag = User32.MOUSEEVENTF_LEFTDOWN;
+                upFlag = User32.MOUSEEVENTF_LEFTUP;
                 break;
             case MOUSE_RIGHT:
-                downFlag = WinUser.MOUSEEVENTF_RIGHTDOWN;
-                upFlag = WinUser.MOUSEEVENTF_RIGHTUP;
+                downFlag = User32.MOUSEEVENTF_RIGHTDOWN;
+                upFlag = User32.MOUSEEVENTF_RIGHTUP;
                 break;
             case MOUSE_MIDDLE:
-                downFlag = WinUser.MOUSEEVENTF_MIDDLEDOWN;
-                upFlag = WinUser.MOUSEEVENTF_MIDDLEUP;
+                downFlag = User32.MOUSEEVENTF_MIDDLEDOWN;
+                upFlag = User32.MOUSEEVENTF_MIDDLEUP;
                 break;
             default:
                 return;
@@ -103,15 +103,15 @@ public class InputSender {
         sendMouse(upFlag);
     }
 
-    private static void send(WinUser.INPUT[] inputs) {
+    private static void send(User32.INPUT[] inputs) {
 
-        for (WinUser.INPUT input : inputs) {
+        for (User32.INPUT input : inputs) {
             input.write();
         }
 
-        int size = new WinUser.INPUT().size();
+        int size = new User32.INPUT().size();
 
-        int sent = WinUser.INSTANCE.SendInput(inputs.length, inputs, size);
+        int sent = User32.INSTANCE.SendInput(inputs.length, inputs, size);
 
         if (sent != inputs.length) {
             int err = Native.getLastError();

@@ -3,6 +3,7 @@ package org.ccl.cclautoclick.jna;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import com.sun.jna.Union;
 import com.sun.jna.win32.W32APIOptions;
 
 import java.util.Arrays;
@@ -14,12 +15,14 @@ import java.util.List;
 public interface User32 extends com.sun.jna.Library {
     User32 INSTANCE = Native.load("user32", User32.class, W32APIOptions.UNICODE_OPTIONS);
     // 鼠标事件标志
+    int MOUSEEVENTF_MOVE = 0x0001;
     int MOUSEEVENTF_LEFTDOWN = 0x0002;
     int MOUSEEVENTF_LEFTUP = 0x0004;
     int MOUSEEVENTF_RIGHTDOWN = 0x0008;
     int MOUSEEVENTF_RIGHTUP = 0x0010;
     int MOUSEEVENTF_MIDDLEDOWN = 0x0020;
     int MOUSEEVENTF_MIDDLEUP = 0x0040;
+    int MOUSEEVENTF_WHEEL = 0x0800;
     // 键盘事件标志
     int KEYEVENTF_KEYDOWN = 0x0000;
     int KEYEVENTF_KEYUP = 0x0002;
@@ -102,12 +105,16 @@ public interface User32 extends com.sun.jna.Library {
 
         public int type;
         public InputUnion inputUnion;
+
+        public INPUT() {
+            inputUnion = new InputUnion();
+        }
     }
 
     /**
      * InputUnion 联合体
      */
-    public static class InputUnion extends Structure {
+    public static class InputUnion extends Union {
         public MOUSEINPUT mi;
         public KEYBDINPUT ki;
         public HARDWAREINPUT hi;
@@ -136,7 +143,7 @@ public interface User32 extends com.sun.jna.Library {
         public int mouseData;
         public int dwFlags;
         public int time;
-        public int dwExtraInfo;
+        public Pointer dwExtraInfo;
     }
 
     /**
@@ -148,7 +155,7 @@ public interface User32 extends com.sun.jna.Library {
         public short wScan;
         public int dwFlags;
         public int time;
-        public int dwExtraInfo;
+        public Pointer dwExtraInfo;
     }
 
     /**
