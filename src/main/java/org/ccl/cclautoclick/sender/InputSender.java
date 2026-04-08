@@ -1,6 +1,7 @@
 package org.ccl.cclautoclick.sender;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import org.ccl.cclautoclick.engine.InputMark;
 import org.ccl.cclautoclick.jna.WinUser;
 import org.ccl.cclautoclick.model.Key;
@@ -11,11 +12,12 @@ public class InputSender {
         WinUser.INPUT input = new WinUser.INPUT();
         input.type = WinUser.INPUT_MOUSE;
 
+        input.inputUnion.setType(WinUser.MOUSEINPUT.class);
         input.inputUnion.mi = new WinUser.MOUSEINPUT();
         input.inputUnion.mi.dwFlags = flags;
         input.inputUnion.mi.time = 0;
         // 【关键】设置自定义标记，防止回环
-        input.inputUnion.mi.dwExtraInfo = (int) InputMark.MAGIC;
+        input.inputUnion.mi.dwExtraInfo = Pointer.createConstant(InputMark.MAGIC);
 
         input.inputUnion.write();
         input.write();
@@ -27,13 +29,14 @@ public class InputSender {
         WinUser.INPUT input = new WinUser.INPUT();
         input.type = WinUser.INPUT_KEYBOARD;
 
+        input.inputUnion.setType(WinUser.KEYBDINPUT.class);
         input.inputUnion.ki = new WinUser.KEYBDINPUT();
         input.inputUnion.ki.wVk = vk;
         input.inputUnion.ki.wScan = 0;
         input.inputUnion.ki.dwFlags = keyUp ? WinUser.KEYEVENTF_KEYUP : 0;
         input.inputUnion.ki.time = 0;
         // 【关键】设置自定义标记，防止回环
-        input.inputUnion.ki.dwExtraInfo = (int) InputMark.MAGIC;
+        input.inputUnion.ki.dwExtraInfo = Pointer.createConstant(InputMark.MAGIC);
 
         input.inputUnion.write();
         input.write();
@@ -50,6 +53,7 @@ public class InputSender {
         WinUser.INPUT input = new WinUser.INPUT();
         input.type = WinUser.INPUT_MOUSE;
 
+        input.inputUnion.setType(WinUser.MOUSEINPUT.class);
         input.inputUnion.mi = new WinUser.MOUSEINPUT();
         input.inputUnion.mi.mouseData = delta;
         input.inputUnion.mi.dwFlags = WinUser.MOUSEEVENTF_WHEEL;

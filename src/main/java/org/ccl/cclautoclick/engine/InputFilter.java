@@ -1,6 +1,7 @@
 package org.ccl.cclautoclick.engine;
 
-import org.ccl.cclautoclick.jna.WinUser;
+import com.sun.jna.Pointer;
+import org.ccl.cclautoclick.jna.User32;
 
 /**
  * 输入过滤器 - 防回环核心组件
@@ -14,7 +15,7 @@ public class InputFilter {
      * @param info 键盘钩子结构体
      * @return true-应该忽略（是模拟输入），false-应该处理（是物理输入）
      */
-    public static boolean shouldIgnore(WinUser.KBDLLHOOKSTRUCT info) {
+    public static boolean shouldIgnore(User32.KBDLLHOOKSTRUCT info) {
         // 1. 系统注入标记（最重要）
         // LLKHF_INJECTED = 0x10 - 表示该事件是由 SendInput 等 API 注入的
         if ((info.flags & 0x10) != 0) {
@@ -22,7 +23,7 @@ public class InputFilter {
         }
 
         // 2. 自定义标记（精准识别本程序的输出）
-        if (info.dwExtraInfo == (int) InputMark.MAGIC) {
+        if (Pointer.nativeValue(Pointer.createConstant(info.dwExtraInfo)) == InputMark.MAGIC) {
             return true;
         }
 
@@ -35,7 +36,7 @@ public class InputFilter {
      * @param info 鼠标钩子结构体
      * @return true-应该忽略（是模拟输入），false-应该处理（是物理输入）
      */
-    public static boolean shouldIgnore(WinUser.MSLLHOOKSTRUCT info) {
+    public static boolean shouldIgnore(User32.MSLLHOOKSTRUCT info) {
         // 1. 系统注入标记
         // LLMHF_INJECTED = 0x01 - 表示该事件是由 SendInput 等 API 注入的
         if ((info.flags & 0x01) != 0) {
@@ -43,7 +44,7 @@ public class InputFilter {
         }
 
         // 2. 自定义标记（精准识别本程序的输出）
-        if (info.dwExtraInfo == (int) InputMark.MAGIC) {
+        if (Pointer.nativeValue(Pointer.createConstant(info.dwExtraInfo)) == InputMark.MAGIC) {
             return true;
         }
 
